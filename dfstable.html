@@ -1,0 +1,88 @@
+<html>
+<head>
+<title>Directional Fixed Size Table Development</title>
+<style type="text/css">
+div{
+  border: 1px solid black;
+  position: absolute;
+}
+.debugDiv {
+  position: relative !important;
+  top: 200 px;
+}
+</style>
+<link rel="stylesheet" type="text/css" href="debug.css" />
+<script type="text/javascript" src="debug.js"></script>
+<script type="text/javascript" src="vtable.js"></script>
+<script type="text/javascript" src="dfstable.js"></script>
+<script type="text/javascript">
+  window.onload = function()
+{
+  var vt;
+  var i,c;
+  vt = new dfstable(850,390, 5, 10, 20, 5);
+  vt.contentRequestedWidth = function(c,w)
+  {
+    return c.content.offsetWidth/c.cspan;
+  }
+  vt.contentRequestedHeight = function(c,h)
+  {
+    return c.content.offsetHeight/c.rspan;
+  }
+  len = vt.tbcount - 18;
+  for(i = 0;i < len; ++i)
+  {
+    var cell = new vcell();
+    if(i == 0)
+    {
+      cell.cspan = 2;
+      cell.rspan = 2;
+    }
+    if(i == 9)
+    {
+      cell.cspan = 2;
+      cell.rspan = 2;
+    }
+    if(i == 20)
+    {
+      cell.cspan = 3;
+      cell.rspan = 1;
+    }
+    if(i == 22)
+    {
+      cell.cspan = 3;
+      cell.rspan = 3;
+    }
+    if(i == 37)
+    {
+      cell.rspan = 3;
+    }
+    cell.content = document.createElement("div");
+    cell.content.innerHTML = "cell " + i + "   " +
+			     Math.random().toString().
+			     substr(0,2 + Math.random()*10);
+    document.body.appendChild(cell.content);
+    vt.pushcell(cell);
+  }
+  vt.dir = '<';
+  vt.update();
+  vt.setup();
+  vt.foreach_cell_oinfo(html_vtable_apply);
+}
+function html_vtable_apply(oinfo)
+{
+/*
+  cell.content.innerHTML = cell.ox + "x" + cell.oy + "---" + cell.owidth+ "x"+
+				cell.oheight;
+*/
+  var cell = oinfo.cell;
+  cell.content.style.left = oinfo.x;
+  cell.content.style.top = oinfo.y;
+  cell.content.style.width = oinfo.width;
+  cell.content.style.height = oinfo.height;
+}
+</script>
+</head>
+<body>
+</body>
+</html>

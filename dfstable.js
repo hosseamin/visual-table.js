@@ -3,32 +3,36 @@
   is an abstraction on vtable which manages sizes and cell positioning
   in specific direction
 */
-var dfstable = function(width,height,bsw,bsh)
+var dfstable = function(width, height, hbc, vbc, hbm, vbm)
 {
     this.vtable_construct();
     if(width)
 	this.width = width;
     if(height)
 	this.height = height;
-    if(bsw)
-	this.bsw = bsw;
-    if(bsh)
-	this.bsh = bsh;
+    if(hbc)
+	this.hbc = hbc;
+    if(vbc)
+	this.vbc = vbc;
+    if(hbm)
+	this.hbmargin = hbm;
+    if(vbm)
+	this.vbmargin = vbm;
     this.initTable();
 }
 // inherit vtable
 inherit_vtable(dfstable);
-// block size width property
-dfstable.prototype.bsw = 1;
-// block size height property
-dfstable.prototype.bsh = 1;
+// horizontal block count property
+dfstable.prototype.hbc = 1;
+// vertical block count property
+dfstable.prototype.vbc = 1;
 // dfstable not support pr mode 
 dfstable.prototype.span_method = 'pc';
 dfstable.prototype.install_dir = 'ttb';
-dfstable.prototype.hmargin = 0;
-dfstable.prototype.vmargin = 0;
-dfstable.prototype.hbcount = 0;
-dfstable.prototype.vbcount = 0;
+dfstable.prototype.hbmargin = 0;
+dfstable.prototype.vbmargin = 0;
+dfstable.prototype.bsw = 0;
+dfstable.prototype.bsh = 0;
 dfstable.prototype.tbcount = 0;
 //dfstable.prototype.cells = new Array(0);
 dfstable.prototype.sizetype = VTABLE_FIXED;
@@ -167,8 +171,8 @@ function dfstable_ttb_get_push_avail_slots_mrow_lcol(dt, rrem, crem)
 }
 function dfstable_ttb_get_push_avail_slots(dt)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     var pr = dt.pushr;
     var pc = dt.pushc;
     var spaned = dt.inst_spaned;
@@ -199,8 +203,8 @@ function dfstable_ttb_get_push_avail_slots(dt)
 }
 function dfstable_ttb_backward_filled(dt)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     var spaned = dt.inst_spaned;
     do
     {
@@ -216,8 +220,8 @@ function dfstable_ttb_backward_filled(dt)
 }
 function dfstable_free_slot(dt, cell)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     var spaned = dt.inst_spaned;
     for(var k = 0; k < cell.rspan; ++k)
 	for(var z = 0; z < cell.cspan; ++z)
@@ -229,8 +233,8 @@ function dfstable_ttb_popcell(dt, cell)
     try{
     if(dt.pushr <= 0 && dt.pushc < 0)
 	return DFSTABLE_TABLE_EMPTY;
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     var spaned = dt.inst_spaned;
     var re;
     if((re = dfstable_ttb_backward_filled(dt)) != 0)
@@ -258,8 +262,8 @@ var DFSTABLE_WONT_FIT_IN_ROW = 3;
 var DFSTABLE_WONT_FIT = 4;
 function dfstable_ttb_pushcell(dt, cell)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     if(dt.pushc >= clen)
 	return DFSTABLE_TABLE_FULL;
     while(dt.inst_spaned[dt.pushr][dt.pushc] != DFSTABLE_CELL_EMPTY)
@@ -294,8 +298,8 @@ function dfstable_ttb_pushcell(dt, cell)
 }
 function dfstable_ttb_forward_empty(dt)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     var spaned = dt.inst_spaned;
     while(spaned[dt.pushr][dt.pushc] != DFSTABLE_CELL_EMPTY)
 	if(++dt.pushr >= rlen)
@@ -310,8 +314,8 @@ function dfstable_ttb_forward_empty(dt)
 }
 function dfstable_ttb_possible_to_push(dt, cell)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     var cdef = clen - dt.pushc;
     var rdef = rlen - dt.pushr;
     var spaned = dt.inst_spaned;
@@ -334,8 +338,8 @@ function dfstable_ttb_possible_to_push(dt, cell)
 }
 function dfstable_ttb_fill_slots(dt, cell)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     var spaned = dt.inst_spaned;
      spaned[dt.pushr][dt.pushc] = DFSTABLE_CELL_FILLED;
     var z = 1;
@@ -349,8 +353,8 @@ function dfstable_ttb_fill_slots(dt, cell)
 }
 function dfstable_ttb_pushcell_strict(dt, cell)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     var pr = dt.pushr;
     var pc = dt.pushc;
     var spaned = dt.inst_spaned;
@@ -373,8 +377,8 @@ function dfstable_ttb_pushcell_strict(dt, cell)
 }
 function dfstable_ttb_isTableFull(dt)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     if(dt.pushc >= clen)
 	return true;
     while(dt.inst_spaned[dt.pushr][dt.pushc] != DFSTABLE_CELL_EMPTY)
@@ -389,11 +393,14 @@ function dfstable_ttb_isTableFull(dt)
 }
 dfstable.prototype.initTable = function()
 {
-    this.computeTableBlocksCount();
-    this.computeVMargin();
-    this.computeHMargin();
-    var clen = this.hbcount;
-    var rlen = this.vbcount;
+    //this.computeTableBlocksCount();
+    //this.computeVBMargin();
+    //this.computeHBMargin();
+    this.computeBlockWidth();
+    this.computeBlockHeight();
+    this.tbcount = this.hbc * this.vbc;
+    var clen = this.hbc;
+    var rlen = this.vbc;
     for(var k = 0; k < rlen; ++k)
 	this.addrow();
     this.updateSpaned();
@@ -421,8 +428,8 @@ dfstable.prototype.install = function()
 }
 dfstable_ttb_install = function(dt)
 {
-    var rlen = dt.vbcount;
-    var clen = dt.hbcount;
+    var rlen = dt.vbc;
+    var clen = dt.hbc;
     var ilen = dt.cells.length;
     dt.inst_spaned = new Array(rlen);
     for(i=0; i < rlen; ++i)
@@ -457,20 +464,21 @@ dfstable_ttb_install = function(dt)
 	}
     }
 }
+dfstable.prototype.vtable_update = dfstable.prototype.update;
 dfstable.prototype.update = function()
 {
     var colp;
-    var len = this.hbcount
+    var len = this.hbc
     var bsw = this.bsw;
     var bsh = this.bsh;
-    var hmargin = this.hmargin;
-    var vmargin = this.vmargin;
+    var hbmargin = this.hbmargin;
+    var vbmargin = this.vbmargin;
     this.addColPUpto(len);
     for(var i = 0; i < len; ++i)
     {
 	colp = this.colsp[i];
 	colp.width = bsw;
-	colp.lmargin = colp.rmargin = hmargin / 2;
+	colp.lmargin = colp.rmargin = hbmargin / 2;
     }
     len = this.rowsp.length;
     var rowp;
@@ -478,13 +486,17 @@ dfstable.prototype.update = function()
     {
 	rowp = this.rowsp[i];
 	rowp.height = bsh;
-	rowp.tmargin = rowp.bmargin = vmargin / 2;
+	rowp.tmargin = rowp.bmargin = vbmargin / 2;
     }
-    vtable_update_noclear(this);
+    this.vtable_update();
 }
-dfstable.prototype.setup = function()
+dfstable.prototype.computeBlockWidth = function()
 {
-    vtable_setup2(this);
+    return this.bsw = this.width / this.hbc - this.hbmargin;
+}
+dfstable.prototype.computeBlockHeight = function()
+{
+    return this.bsh = this.height / this.vbc - this.vbmargin;
 }
 dfstable.prototype.computeTableBlocksCount = function()
 {
@@ -497,27 +509,27 @@ dfstable.prototype.computeHBlocksInTable = function()
     var m;
     var ts = this.width;
     var cs = this.bsw;
-    return this.hbcount = Math.floor(ts / cs);
+    return this.hbc = Math.floor(ts / cs);
 }
 dfstable.prototype.computeVBlocksInTable = function()
 {
     var ts = this.height;
     var cs = this.bsh;
-    return this.vbcount = Math.floor(ts / cs);
+    return this.vbc = Math.floor(ts / cs);
 }
-dfstable.prototype.computeVMargin = function()
+dfstable.prototype.computeVBMargin = function()
 {
     var ts = this.height;
     var cs = this.bsh;
-    var bcount = this.vbcount;
-    return this.vmargin = ts / bcount - cs;
+    var bcount = this.vbc;
+    return this.vbmargin = ts / bcount - cs;
 }
-dfstable.prototype.computeHMargin = function()
+dfstable.prototype.computeHBMargin = function()
 {
     var ts = this.width;
     var cs = this.bsw;
-    var bcount = this.hbcount;
-    return this.hmargin = ts / bcount - cs;
+    var bcount = this.hbc;
+    return this.hbmargin = ts / bcount - cs;
 }
 dfstable.prototype.foreachUIntsCell = function(p)
 {
