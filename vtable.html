@@ -1,0 +1,97 @@
+<html>
+<!-- 
+ - Visual Table does simple table look by positioning his cells
+ -   Copyright (C) 2012  Hossein Amin
+ - This program is free software: you can redistribute it and/or modify
+ - it under the terms of the GNU General Public License as published by
+ - the Free Software Foundation, either version 3 of the License, or
+ - (at your option) any later version.
+ -
+ - This program is distributed in the hope that it will be useful,
+ - but WITHOUT ANY WARRANTY; without even the implied warranty of
+ - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ - GNU General Public License for more details.
+ -
+ - You should have received a copy of the GNU General Public License.
+ - along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<head>
+<title>Visual Table Development</title>
+<style type="text/css">
+div{
+  border: 1px solid black;
+  position: absolute;
+}
+</style>
+<script type="text/javascript" src="vtable.js"></script>
+<script type="text/javascript">
+  window.onload = function()
+{
+  var vt;
+  var i,c;
+  rl = 5;
+  cl = 4;
+  vt = new vtable();
+  vt.contentRequestedWidth = function(c,w)
+  {
+    return c.content.offsetWidth;
+  }
+  vt.contentRequestedHeight = function(c,h)
+  {
+    return c.content.offsetHeight;
+  }
+  for(i = 0;i < rl; ++i)
+  {
+	vt.addrow();
+	for(c = 0;c < cl; ++c)
+	{
+		var cell = new vcell();
+		cell.content = document.createElement("div");
+		cell.content.innerHTML = "cell " + i + "x" + c + "   " +
+		      			  Math.random().toString().
+		      			   substr(0,2 + Math.random()*10);
+		document.body.appendChild(cell.content);
+		vt.addcell(i, cell);
+	}
+  }
+  vt.rows[0][0].cspan = 2;
+  vt.rows[0][0].rspan = 2;
+
+  vt.rows[0][2].cspan = 2;
+
+  vt.rows[2][2].cspan = 2;
+  vt.rows[2][2].rspan = 2;
+  vt.dir = '<';
+  vt.span_method = 'pc';
+  vt.update();
+  var len = vt.colsp.length;
+  for(var i = 0; i < len; ++i)
+  {
+    vt.colsp[i].lmargin = 10;
+    vt.colsp[i].rmargin = 10;
+  }
+
+  var len = vt.rowsp.length;
+  for(var i = 0; i < len; ++i)
+  {
+    vt.rowsp[i].tmargin = 10;
+    vt.rowsp[i].bmargin = 10;
+  }
+  
+  vt.setup();
+  vt.foreach_cell_oinfo(html_vtable_apply);
+
+}
+function html_vtable_apply(oinfo)
+{
+  var cell = oinfo.cell;
+  cell.content.style.left = oinfo.x;
+  cell.content.style.top = oinfo.y;
+  cell.content.style.width = oinfo.width;
+  cell.content.style.height = oinfo.height;
+}
+</script>
+</head>
+<body>
+</body>
+</html>
